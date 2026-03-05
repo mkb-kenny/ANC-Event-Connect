@@ -2,37 +2,17 @@ import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 
-// Define a type for the config
-interface FirebaseConfig {
-  apiKey: string;
-  authDomain: string;
-  projectId: string;
-  storageBucket: string;
-  messagingSenderId: string;
-  appId: string;
-  firestoreDatabaseId?: string;
-}
-
-// Helper to load config
-const loadFirebaseConfig = (): FirebaseConfig => {
-  const envConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId: import.meta.env.VITE_FIREBASE_APP_ID,
-    firestoreDatabaseId: import.meta.env.VITE_FIRESTORE_DATABASE_ID,
-  };
-
-  if (!envConfig.apiKey) {
-    console.error("No Firebase configuration found in environment variables!");
-  }
-
-  return envConfig as FirebaseConfig;
+// Firebase configuration - hardcoded for reliability
+const firebaseConfig = {
+  apiKey: "AIzaSyApuyPE8PbU30ppoR1TcIJcUbH6VcQUP80",
+  authDomain: "uwl-alumni-event.firebaseapp.com",
+  projectId: "uwl-alumni-event",
+  storageBucket: "uwl-alumni-event.firebasestorage.app",
+  messagingSenderId: "915984153825",
+  appId: "1:915984153825:web:4563a6bd4837f31f88cba0",
+  measurementId: "G-B3XW5VBSS2"
 };
 
-const firebaseConfig = loadFirebaseConfig();
 console.log(`Firebase Config Loaded for Project: ${firebaseConfig.projectId}`);
 
 // Initialize Firebase SDK
@@ -47,11 +27,7 @@ try {
     app = getApps()[0];
   }
 
-  // Use the specific database ID if provided in config
-  const dbId = firebaseConfig.firestoreDatabaseId;
-  const validDbId = dbId && dbId !== '(default)' ? dbId : undefined;
-
-  db = getFirestore(app, validDbId);
+  db = getFirestore(app);
   auth = getAuth(app);
 } catch (error) {
   console.error("Firebase initialization failed:", error);
