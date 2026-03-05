@@ -54,22 +54,22 @@ export default function EventForm() {
         createdAt: serverTimestamp(),
       };
 
-      const docRefPromise = addDoc(collection(db, 'registrations'), payload);
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('TIMEOUT')), 10000);
-      });
-
-      await Promise.race([docRefPromise, timeoutPromise]);
+      await addDoc(collection(db, 'registrations'), payload);
 
       setTicketData(data);
       setIsSuccess(true);
       reset();
     } catch (err: any) {
       console.error("Error submitting form:", err);
-      if (err.message === 'TIMEOUT') {
-        setError("Network error: Could not connect to the database. Please check your internet connection.");
+      const code = err?.code || '';
+      if (code === 'permission-denied') {
+        setError("Submission blocked: Firestore security rules denied the request. Please ensure the rules are deployed in your Firebase Console.");
+      } else if (code === 'unavailable' || code === 'network-request-failed') {
+        setError("Network error: Could not connect to the database. Please check your internet connection and try again.");
+      } else if (code === 'not-found') {
+        setError("Database not found. Please make sure Firestore is enabled in your Firebase Console for project 'uwl-alumni-event'.");
       } else {
-        setError("Failed to submit registration. Please try again. " + (err.message || ""));
+        setError(`Registration failed (${code || 'unknown'}): ${err.message || 'Please try again.'}`);
       }
     } finally {
       setIsSubmitting(false);
