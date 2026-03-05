@@ -15,7 +15,6 @@ interface FirebaseConfig {
 
 // Helper to load config
 const loadFirebaseConfig = (): FirebaseConfig => {
-  // 1. Try environment variables (Netlify/Vite)
   const envConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
     authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -26,24 +25,11 @@ const loadFirebaseConfig = (): FirebaseConfig => {
     firestoreDatabaseId: import.meta.env.VITE_FIRESTORE_DATABASE_ID,
   };
 
-  if (envConfig.apiKey) {
-    return envConfig as FirebaseConfig;
+  if (!envConfig.apiKey) {
+    console.error("No Firebase configuration found in environment variables!");
   }
 
-  // 2. Try firebase-applet-config.json (AI Studio)
-  // Use import.meta.glob to avoid build errors if file is missing
-  try {
-    const configFiles = import.meta.glob('../../firebase-applet-config.json', { eager: true });
-    const key = '../../firebase-applet-config.json';
-    if (configFiles[key]) {
-      return (configFiles[key] as any).default || configFiles[key];
-    }
-  } catch (e) {
-    console.warn("Failed to load firebase-applet-config.json", e);
-  }
-
-  console.error("No Firebase configuration found!");
-  return {} as FirebaseConfig;
+  return envConfig as FirebaseConfig;
 };
 
 const firebaseConfig = loadFirebaseConfig();
@@ -64,7 +50,7 @@ try {
   // Use the specific database ID if provided in config
   const dbId = firebaseConfig.firestoreDatabaseId;
   const validDbId = dbId && dbId !== '(default)' ? dbId : undefined;
-    
+
   db = getFirestore(app, validDbId);
   auth = getAuth(app);
 } catch (error) {
