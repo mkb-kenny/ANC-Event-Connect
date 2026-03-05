@@ -54,7 +54,18 @@ export default function EventForm() {
         createdAt: serverTimestamp(),
       };
 
-      await addDoc(collection(db, 'registrations'), payload);
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => {
+          const err = new Error('Request timed out. Please check your internet connection and that Firestore rules are published.');
+          (err as any).code = 'deadline-exceeded';
+          reject(err);
+        }, 15000)
+      );
+
+      await Promise.race([
+        addDoc(collection(db, 'registrations'), payload),
+        timeoutPromise,
+      ]);
 
       setTicketData(data);
       setIsSuccess(true);
@@ -63,13 +74,13 @@ export default function EventForm() {
       console.error("Error submitting form:", err);
       const code = err?.code || '';
       if (code === 'permission-denied') {
-        setError("Submission blocked: Firestore security rules denied the request. Please ensure the rules are deployed in your Firebase Console.");
-      } else if (code === 'unavailable' || code === 'network-request-failed') {
-        setError("Network error: Could not connect to the database. Please check your internet connection and try again.");
+        setError("Submission blocked by Firestore rules. Please publish the updated rules in your Firebase Console and try again.");
+      } else if (code === 'deadline-exceeded' || code === 'unavailable' || code === 'network-request-failed') {
+        setError(err.message || "Network error: Could not connect to the database. Please check your internet connection.");
       } else if (code === 'not-found') {
-        setError("Database not found. Please make sure Firestore is enabled in your Firebase Console for project 'uwl-alumni-event'.");
+        setError("Firestore database not found. Please enable Firestore in your Firebase Console for project 'uwl-alumni-event'.");
       } else {
-        setError(`Registration failed (${code || 'unknown'}): ${err.message || 'Please try again.'}`);
+        setError(`Registration failed: ${err.message || 'Please try again.'}`);
       }
     } finally {
       setIsSubmitting(false);
