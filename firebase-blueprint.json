@@ -1,0 +1,58 @@
+{
+  "entities": {
+    "Registration": {
+      "title": "Registration",
+      "description": "A registration for the UWL Alumni Networking event.",
+      "type": "object",
+      "properties": {
+        "studentName": {
+          "type": "string",
+          "description": "The full name of the student."
+        },
+        "contactNumber": {
+          "type": "string",
+          "description": "The contact number of the student."
+        },
+        "program": {
+          "type": "string",
+          "description": "The program the student is enrolled in.",
+          "enum": ["MBA", "Top Up", "MSc", "LLM", "L7"]
+        },
+        "uwlIdNo": {
+          "type": "string",
+          "description": "The UWL ID number of the student."
+        },
+        "interested": {
+          "type": "string",
+          "description": "Whether the student is interested in attending.",
+          "enum": ["Yes", "NO"]
+        },
+        "informAdvance": {
+          "type": "string",
+          "description": "Agreement to inform in advance if unable to attend.",
+          "enum": ["Agree", "Disagree"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the registration was created."
+        }
+      },
+      "required": [
+        "studentName",
+        "contactNumber",
+        "program",
+        "uwlIdNo",
+        "interested",
+        "informAdvance",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "registrations/{registrationId}": {
+      "schema": "Registration",
+      "description": "Collection of event registrations."
+    }
+  }
+}

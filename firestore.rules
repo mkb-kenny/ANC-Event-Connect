@@ -1,0 +1,80 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: registrations
+    // Document ID: auto-generated
+    // Fields:
+    //   - studentName: string (required, 2-100 chars)
+    //   - contactNumber: string (required, 5-20 chars)
+    //   - program: string (required, enum: ['MBA', 'Top Up', 'MSc', 'LLM', 'L7'])
+    //   - uwlIdNo: string (required, 1-50 chars)
+    //   - interested: string (required, enum: ['Yes', 'NO'])
+    //   - informAdvance: string (required, enum: ['Agree', 'Disagree'])
+    //   - createdAt: timestamp (required, server timestamp)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    // Check if the user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Validate required fields exist
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    // Validate string length
+    function validStringLength(field, minLen, maxLen) {
+      return request.resource.data[field] is string &&
+        request.resource.data[field].size() >= minLen &&
+        request.resource.data[field].size() <= maxLen;
+    }
+
+    // Validate that the document contains only the allowed fields
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // Domain Validator for Registration
+    function isValidRegistration(data) {
+      return hasOnlyAllowedFields(['studentName', 'contactNumber', 'program', 'uwlIdNo', 'interested', 'informAdvance', 'createdAt']) &&
+             hasRequiredFields(['studentName', 'contactNumber', 'program', 'uwlIdNo', 'interested', 'informAdvance', 'createdAt']) &&
+             validStringLength('studentName', 2, 100) &&
+             validStringLength('contactNumber', 5, 20) &&
+             (data.program in ['MBA', 'Top Up', 'MSc', 'LLM', 'L7']) &&
+             validStringLength('uwlIdNo', 1, 50) &&
+             (data.interested in ['Yes', 'NO']) &&
+             (data.informAdvance in ['Agree', 'Disagree']) &&
+             data.createdAt == request.time;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /registrations/{registrationId} {
+      // Allow anyone to create a registration (public form)
+      // But validate the data strictly
+      allow create: if isValidRegistration(request.resource.data);
+      
+      // Only authenticated users (admins) can read/list registrations
+      // For now, we'll restrict read access to authenticated users only
+      // In a real app, you'd check for an 'admin' role
+      allow read: if isAuthenticated();
+      
+      // No updates or deletes allowed for now
+      allow update, delete: if false;
+    }
+  }
+}
