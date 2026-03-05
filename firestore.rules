@@ -79,8 +79,8 @@ service cloud.firestore {
       // Only authenticated admins can read/list registrations
       allow read: if isAdmin();
       
-      // No updates or deletes allowed for now
-      allow update, delete: if false;
+      // Admins can update and delete registrations
+      allow update, delete: if isAdmin();
     }
   }
 }
