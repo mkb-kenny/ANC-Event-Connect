@@ -48,7 +48,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           <h2 className="text-red-600 text-xl font-bold mb-4">Configuration Error</h2>
           <p className="text-gray-700 mb-4">{error}</p>
           <p className="text-sm text-gray-500">
-            Please ensure you have set up your <strong>Environment Variables</strong> (for Netlify/Production) or created a <code>.env</code> file (for local dev).
+            Please ensure you have set up your <strong>firebase-applet-config.json</strong> file.
           </p>
         </div>
       </div>

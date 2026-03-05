@@ -50,6 +50,7 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           initial={{ scale: 0.9, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           transition={{ duration: 0.8, type: "spring", bounce: 0.4 }}
+          whileHover={{ y: -5, transition: { duration: 0.3 } }}
           className="bg-white/60 backdrop-blur-2xl border border-white/50 rounded-[2rem] p-8 md:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group"
         >
           {/* Shine Effect */}
@@ -91,7 +92,6 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           >
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
             <span className="relative z-10 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-yellow-400" />
               Get Started
               <ChevronRight className="w-5 h-5 text-slate-400 group-hover/btn:text-white transition-colors group-hover/btn:translate-x-1 duration-300" />
             </span>

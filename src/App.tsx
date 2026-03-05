@@ -21,8 +21,8 @@ function App() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'ANC MBA Event Registration',
-          text: 'Join us for the upcoming ANC Education MBA Event! Register now.',
+          title: 'ANC UWL Event Registration',
+          text: 'Join us for the upcoming ANC Education UWL Event! Register now.',
           url: appUrl,
         });
       } catch (err) {
@@ -51,7 +51,7 @@ function App() {
           </div>
           <div className="hidden sm:block">
             <h1 className="text-slate-900 font-extrabold text-lg leading-tight drop-shadow-sm tracking-tight group-hover:text-blue-700 transition-colors">ANC Education</h1>
-            <p className="text-blue-600 text-xs font-bold tracking-widest uppercase opacity-80 group-hover:opacity-100 transition-opacity">MBA Events</p>
+            <p className="text-blue-600 text-xs font-bold tracking-widest uppercase opacity-80 group-hover:opacity-100 transition-opacity">UWL Event</p>
           </div>
         </div>
 
