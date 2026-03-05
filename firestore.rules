@@ -63,15 +63,21 @@ service cloud.firestore {
     // Rules
     // ===============================================================
 
+    // Check if the user is an admin
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'admin@ancedu.com' || 
+        request.auth.token.email == 'i.am.jerom.allan@gmail.com'
+      );
+    }
+
     match /registrations/{registrationId} {
       // Allow anyone to create a registration (public form)
       // But validate the data strictly
       allow create: if isValidRegistration(request.resource.data);
       
-      // Only authenticated users (admins) can read/list registrations
-      // For now, we'll restrict read access to authenticated users only
-      // In a real app, you'd check for an 'admin' role
-      allow read: if isAuthenticated();
+      // Only authenticated admins can read/list registrations
+      allow read: if isAdmin();
       
       // No updates or deletes allowed for now
       allow update, delete: if false;

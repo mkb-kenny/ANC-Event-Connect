@@ -13,8 +13,9 @@ const formSchema = z.object({
   contactNumber: z.string().min(10, 'Contact Number must be at least 10 digits'),
   program: z.enum(['MBA', 'Top Up', 'MSc', 'LLM', 'L7']),
   uwlIdNo: z.string().min(1, 'UWL ID No is required'),
-  interested: z.enum(['Yes', 'NO']),
-  informAdvance: z.enum(['Agree', 'Disagree']),
+  informAdvance: z.literal(true, {
+    message: "You must agree to the terms",
+  }),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -30,8 +31,13 @@ export default function EventForm() {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
+    watch,
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      informAdvance: true, // Default to true for speed, user can uncheck if they disagree (but form won't submit)
+    }
   });
 
   const onSubmit = async (data: FormData) => {
@@ -112,6 +118,7 @@ export default function EventForm() {
             <label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-wider">Student Name</label>
             <input
               {...register('studentName')}
+              autoComplete="name"
               className="w-full bg-white/50 border border-slate-200 rounded-xl px-4 py-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all hover:bg-white hover:border-blue-300 shadow-sm"
               placeholder="Enter your full name"
             />
@@ -128,6 +135,7 @@ export default function EventForm() {
             <input
               {...register('contactNumber')}
               type="tel"
+              autoComplete="tel"
               className="w-full bg-white/50 border border-slate-200 rounded-xl px-4 py-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all hover:bg-white hover:border-blue-300 shadow-sm"
               placeholder="Enter your mobile number"
             />
@@ -179,55 +187,25 @@ export default function EventForm() {
             )}
           </motion.div>
 
-          {/* Interested */}
+          {/* Inform Advance - Checkbox */}
           <motion.div variants={itemVariants} className="space-y-3 pt-2">
-            <label className="text-sm font-bold text-slate-900 block">Are you interested in taking part?</label>
-            <div className="grid grid-cols-2 gap-4">
-              {['Yes', 'NO'].map((option) => (
-                <label key={option} className="relative cursor-pointer group">
-                  <input
-                    type="radio"
-                    value={option}
-                    {...register('interested')}
-                    className="peer sr-only"
-                  />
-                  <div className="w-full p-4 text-center rounded-xl border border-slate-200 bg-white/50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 transition-all hover:bg-white hover:border-blue-300 group-hover:shadow-md shadow-sm">
-                    <span className="text-sm font-bold">{option}</span>
-                  </div>
-                </label>
-              ))}
-            </div>
-            {errors.interested && (
-              <p className="text-red-500 text-xs ml-1 flex items-center gap-1 font-medium">
-                <AlertCircle className="w-3 h-3" /> {errors.interested.message}
-              </p>
-            )}
-          </motion.div>
-
-          {/* Inform Advance */}
-          <motion.div variants={itemVariants} className="space-y-3 pt-2">
-            <label className="text-sm font-medium text-slate-600 block leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">
-              If I am unable to participate, I will inform Ms. Nimesha (077 036 3802) or Ms. Kavya (077 551 0791) in advance.
+            <label className="flex items-start gap-3 p-4 rounded-xl border border-slate-200 bg-white/50 hover:bg-white transition-colors cursor-pointer group">
+              <div className="relative flex items-center mt-0.5">
+                <input
+                  type="checkbox"
+                  {...register('informAdvance')}
+                  className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-slate-300 transition-all checked:border-blue-500 checked:bg-blue-500 hover:border-blue-400"
+                />
+                <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+              <span className="text-sm font-medium text-slate-600 leading-relaxed group-hover:text-slate-900 transition-colors">
+                I agree to inform Ms. Nimesha (077 036 3802) or Ms. Kavya (077 551 0791) in advance if I am unable to participate.
+              </span>
             </label>
-            <div className="grid grid-cols-2 gap-4">
-              {['Agree', 'Disagree'].map((option) => (
-                <label key={option} className="relative cursor-pointer group">
-                  <input
-                    type="radio"
-                    value={option}
-                    {...register('informAdvance')}
-                    className="peer sr-only"
-                  />
-                  <div className={`w-full p-4 text-center rounded-xl border border-slate-200 bg-white/50 transition-all hover:bg-white hover:border-slate-300 group-hover:shadow-md shadow-sm ${
-                    option === 'Agree' 
-                      ? 'peer-checked:bg-green-50 peer-checked:border-green-500 peer-checked:text-green-700' 
-                      : 'peer-checked:bg-red-50 peer-checked:border-red-500 peer-checked:text-red-700'
-                  }`}>
-                    <span className="text-sm font-bold">{option}</span>
-                  </div>
-                </label>
-              ))}
-            </div>
             {errors.informAdvance && (
               <p className="text-red-500 text-xs ml-1 flex items-center gap-1 font-medium">
                 <AlertCircle className="w-3 h-3" /> {errors.informAdvance.message}

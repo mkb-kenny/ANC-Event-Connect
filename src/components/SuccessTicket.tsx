@@ -37,8 +37,9 @@ export default function SuccessTicket({ data, onReset }: SuccessTicketProps) {
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
           <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px]"></div>
           
-          <h2 className="text-2xl font-extrabold text-white relative z-10 tracking-tight">Registration Confirmed!</h2>
-          <p className="text-blue-50 text-sm mt-1 relative z-10 font-medium">UWL Alumni Networking Evening</p>
+          <h2 className="text-3xl font-extrabold text-white relative z-10 tracking-tight mb-1">Thank You!</h2>
+          <p className="text-blue-50 text-sm relative z-10 font-medium opacity-90">Registration Confirmed</p>
+          <p className="text-white/80 text-xs mt-2 relative z-10 font-medium uppercase tracking-widest">UWL Alumni Networking Evening</p>
           
           {/* Decorative Circles */}
           <div className="absolute -top-10 -left-10 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
@@ -47,6 +48,12 @@ export default function SuccessTicket({ data, onReset }: SuccessTicketProps) {
 
         {/* Ticket Body */}
         <div className="p-6 md:p-8 flex flex-col items-center space-y-6">
+          <div className="text-center space-y-2">
+             <p className="text-slate-600 text-sm leading-relaxed max-w-xs mx-auto">
+               We look forward to seeing you there! Here is your digital pass.
+             </p>
+          </div>
+
           <div className="bg-white p-4 rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-100 transform hover:scale-105 transition-transform duration-300">
             <QRCodeSVG
               value={JSON.stringify({ name: data.studentName, program: data.program, id: data.uwlIdNo })}

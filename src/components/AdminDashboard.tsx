@@ -9,6 +9,8 @@ import {
   User,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
   AuthError
 } from 'firebase/auth';
 import { Download, LogOut, Loader2, Table, FileSpreadsheet, Lock, Mail, Key, UserPlus, AlertCircle } from 'lucide-react';
@@ -19,8 +21,8 @@ interface Registration {
   contactNumber: string;
   program: string;
   uwlIdNo: string;
-  interested: string;
-  informAdvance: string;
+  interested?: string; // Optional now
+  informAdvance: string | boolean; // Can be string (old) or boolean (new)
   createdAt: Timestamp;
 }
 
@@ -33,7 +35,7 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
   // Filter State
   const [searchTerm, setSearchTerm] = useState('');
   const [programFilter, setProgramFilter] = useState('All');
-  const [statusFilter, setStatusFilter] = useState('All');
+  // Removed statusFilter since 'interested' is removed from form
 
   // Login State
   const [email, setEmail] = useState('');
@@ -71,6 +73,25 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    setIsLoggingIn(true);
+    setLoginError(null);
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      const authError = error as AuthError;
+      console.error("Google login failed:", authError);
+      if (authError.code === 'auth/operation-not-allowed') {
+        setLoginError(`Google Sign-In is disabled for project "${auth.app.options.projectId}". Enable it in Firebase Console > Authentication > Sign-in method.`);
+      } else {
+        setLoginError("Google login failed: " + authError.message);
+      }
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
@@ -85,7 +106,7 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
         setLoginError("Login failed. If this is your first time, you must create the admin account.");
         setShowSetupButton(true);
       } else if (authError.code === 'auth/operation-not-allowed') {
-        setLoginError("Email/Password login is disabled. Enable it in Firebase Console > Authentication > Sign-in method.");
+        setLoginError(`Email/Password login is disabled for project "${auth.app.options.projectId}". Please check this specific project in Firebase Console.`);
       } else if (authError.code === 'auth/configuration-not-found') {
         setLoginError("Authentication not set up. Go to Firebase Console > Authentication, click 'Get Started', and enable Email/Password.");
       } else {
@@ -112,7 +133,7 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
         setEmail('admin@ancedu.com');
         setPassword('Anc@321$');
       } else if (authError.code === 'auth/operation-not-allowed') {
-        setLoginError("Email/Password login is disabled. Enable it in Firebase Console > Authentication > Sign-in method.");
+        setLoginError(`Email/Password login is disabled for project "${auth.app.options.projectId}". Please check this specific project in Firebase Console.`);
       } else if (authError.code === 'auth/configuration-not-found') {
         setLoginError("Authentication not set up. Go to Firebase Console > Authentication, click 'Get Started', and enable Email/Password.");
       } else {
@@ -136,15 +157,23 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
     const headers = ['Student Name', 'Contact Number', 'Program', 'UWL ID No', 'Interested', 'Inform Advance', 'Registration Date'];
     const csvContent = [
       headers.join(','),
-      ...registrations.map(row => [
-        `"${row.studentName}"`,
-        `"${row.contactNumber}"`,
-        `"${row.program}"`,
-        `"${row.uwlIdNo}"`,
-        `"${row.interested}"`,
-        `"${row.informAdvance}"`,
-        `"${row.createdAt?.toDate().toLocaleString()}"`
-      ].join(','))
+      ...registrations.map(row => {
+        const informAdvanceVal = typeof row.informAdvance === 'boolean' 
+          ? (row.informAdvance ? 'Agree' : 'Disagree') 
+          : row.informAdvance;
+        
+        const interestedVal = row.interested || 'Yes';
+
+        return [
+          `"${row.studentName}"`,
+          `"${row.contactNumber}"`,
+          `"${row.program}"`,
+          `"${row.uwlIdNo}"`,
+          `"${interestedVal}"`,
+          `"${informAdvanceVal}"`,
+          `"${row.createdAt?.toDate().toLocaleString()}"`
+        ].join(',');
+      })
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -166,9 +195,8 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
       reg.contactNumber.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesProgram = programFilter === 'All' || reg.program === programFilter;
-    const matchesStatus = statusFilter === 'All' || reg.interested === statusFilter;
-
-    return matchesSearch && matchesProgram && matchesStatus;
+    
+    return matchesSearch && matchesProgram;
   });
 
   if (loading) {
@@ -194,6 +222,7 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
           </div>
           <h2 className="text-3xl font-bold text-slate-900 mb-2 tracking-tight">Admin Access</h2>
           <p className="text-slate-500 text-sm font-medium">Sign in to manage registrations</p>
+          <p className="text-slate-400 text-[10px] mt-1 font-mono">Project: {auth?.app?.options?.projectId || 'Unknown'}</p>
         </div>
 
         {loginError && (
@@ -313,7 +342,7 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
       </div>
 
       {/* Filters & Search */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div className="relative">
           <input
             type="text"
@@ -336,23 +365,6 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
             {uniquePrograms.map(prog => (
               <option key={prog} value={prog}>{prog === 'All' ? 'All Programs' : prog}</option>
             ))}
-          </select>
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-            <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-        </div>
-
-        <div className="relative">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm appearance-none cursor-pointer"
-          >
-            <option value="All">All Statuses</option>
-            <option value="Yes">Interested</option>
-            <option value="No">Not Interested</option>
           </select>
           <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
             <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -401,8 +413,10 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
                     <td className="px-8 py-5 text-sm text-slate-600 font-mono">{reg.uwlIdNo}</td>
                     <td className="px-8 py-5 text-sm text-slate-600">{reg.contactNumber}</td>
                     <td className="px-8 py-5 text-sm text-slate-600">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${reg.interested === 'Yes' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'}`}>
-                        {reg.interested}
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                        (reg.interested || 'Yes') === 'Yes' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'
+                      }`}>
+                        {reg.interested || 'Yes'}
                       </span>
                     </td>
                   </tr>
@@ -435,8 +449,10 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
                       </span>
                     </div>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${reg.interested === 'Yes' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'}`}>
-                    {reg.interested}
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                    (reg.interested || 'Yes') === 'Yes' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'
+                  }`}>
+                    {reg.interested || 'Yes'}
                   </span>
                 </div>
                 
