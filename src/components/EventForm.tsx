@@ -44,16 +44,33 @@ export default function EventForm() {
     setIsSubmitting(true);
     setError(null);
     try {
-      await addDoc(collection(db, 'registrations'), {
-        ...data,
+      const payload = {
+        studentName: data.studentName,
+        contactNumber: data.contactNumber,
+        program: data.program,
+        uwlIdNo: data.uwlIdNo,
+        interested: 'Yes',
+        informAdvance: data.informAdvance ? 'Agree' : 'Disagree',
         createdAt: serverTimestamp(),
+      };
+
+      const docRefPromise = addDoc(collection(db, 'registrations'), payload);
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('TIMEOUT')), 10000);
       });
+
+      await Promise.race([docRefPromise, timeoutPromise]);
+
       setTicketData(data);
       setIsSuccess(true);
       reset();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error submitting form:", err);
-      setError("Failed to submit registration. Please try again.");
+      if (err.message === 'TIMEOUT') {
+        setError("Network error: Could not connect to the database. Please check your internet connection.");
+      } else {
+        setError("Failed to submit registration. Please try again. " + (err.message || ""));
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -102,7 +119,7 @@ export default function EventForm() {
         </motion.div>
 
         {error && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             className="mb-6 p-4 bg-red-50/80 backdrop-blur-sm border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 shadow-sm"
@@ -162,7 +179,7 @@ export default function EventForm() {
                 <option value="L7">L7</option>
               </select>
               <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
               </div>
             </div>
             {errors.program && (

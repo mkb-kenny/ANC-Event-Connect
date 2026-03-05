@@ -6,7 +6,6 @@ export default function Background() {
       {/* Vibrant Gradient Orbs */}
       <motion.div
         animate={{
-          scale: [1, 1.1, 1],
           opacity: [0.3, 0.4, 0.3],
           x: [0, 30, 0],
           y: [0, -30, 0],
@@ -16,11 +15,11 @@ export default function Background() {
           repeat: Infinity,
           ease: "easeInOut",
         }}
+        style={{ willChange: 'transform, opacity' }}
         className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-blue-400/20 rounded-full blur-[120px]"
       />
       <motion.div
         animate={{
-          scale: [1, 1.2, 1],
           opacity: [0.2, 0.3, 0.2],
           x: [0, -40, 0],
           y: [0, 40, 0],
@@ -31,11 +30,11 @@ export default function Background() {
           ease: "easeInOut",
           delay: 2,
         }}
+        style={{ willChange: 'transform, opacity' }}
         className="absolute bottom-[-10%] right-[-10%] w-[700px] h-[700px] bg-purple-400/20 rounded-full blur-[130px]"
       />
       <motion.div
         animate={{
-          scale: [1, 1.1, 1],
           opacity: [0.2, 0.3, 0.2],
           x: [0, 20, 0],
           y: [0, 20, 0],
@@ -46,11 +45,11 @@ export default function Background() {
           ease: "easeInOut",
           delay: 4,
         }}
+        style={{ willChange: 'transform, opacity' }}
         className="absolute top-[20%] right-[20%] w-[400px] h-[400px] bg-pink-400/15 rounded-full blur-[100px]"
       />
-       <motion.div
+      <motion.div
         animate={{
-          scale: [1, 1.2, 1],
           opacity: [0.1, 0.3, 0.1],
           x: [0, -30, 0],
           y: [0, -30, 0],
@@ -61,6 +60,7 @@ export default function Background() {
           ease: "easeInOut",
           delay: 1,
         }}
+        style={{ willChange: 'transform, opacity' }}
         className="absolute bottom-[20%] left-[10%] w-[500px] h-[500px] bg-cyan-400/15 rounded-full blur-[110px]"
       />
 
