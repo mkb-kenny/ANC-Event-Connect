@@ -42,7 +42,7 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [showSetupButton, setShowSetupButton] = useState(false);
+
 
   // Edit State
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -100,15 +100,14 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
     e.preventDefault();
     setIsLoggingIn(true);
     setLoginError(null);
-    setShowSetupButton(false);
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
       const authError = error as AuthError;
       console.error("Login failed:", authError);
       if (authError.code === 'auth/invalid-credential' || authError.code === 'auth/user-not-found' || authError.code === 'auth/wrong-password') {
-        setLoginError("Login failed. If this is your first time, you must create the admin account.");
-        setShowSetupButton(true);
+        setLoginError("Invalid email or password. Please try again.");
       } else if (authError.code === 'auth/operation-not-allowed') {
         setLoginError(`Email/Password login is disabled for project "${auth.app.options.projectId}". Please check this specific project in Firebase Console.`);
       } else if (authError.code === 'auth/configuration-not-found') {
@@ -271,19 +270,9 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
         </div>
 
         {loginError && (
-          <div className="mb-6 p-4 bg-red-50/80 backdrop-blur-sm border border-red-100 rounded-2xl flex flex-col gap-2 text-red-600 shadow-sm">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 flex-shrink-0" />
-              <p className="text-sm font-medium">{loginError}</p>
-            </div>
-            {showSetupButton && (
-              <button
-                onClick={createDefaultAdmin}
-                className="mt-2 bg-white/50 hover:bg-white text-red-700 text-xs py-2 px-3 rounded-xl transition-colors w-full text-center font-bold border border-red-200 shadow-sm"
-              >
-                Create Admin Account Now
-              </button>
-            )}
+          <div className="mb-6 p-4 bg-red-50/80 backdrop-blur-sm border border-red-100 rounded-2xl flex items-center gap-2 text-red-600 shadow-sm">
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <p className="text-sm font-medium">{loginError}</p>
           </div>
         )}
 
