@@ -21,7 +21,7 @@ function App() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Jerome Linsay Allan',
+          title: 'ANC Event',
           text: 'Join us for the upcoming ANC Education UWL Event! Register now.',
           url: appUrl,
         });
