@@ -92,12 +92,12 @@ export default function EventForm() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4 md:p-6">
+    <div className="w-full">
       <motion.div
         initial="hidden"
         animate="visible"
         variants={containerVariants}
-        className="bg-white/70 backdrop-blur-2xl border border-white/60 rounded-[2.5rem] p-6 md:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden"
+        className="bg-white/70 backdrop-blur-2xl border-b border-white/60 p-6 md:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden min-h-[calc(100vh-6rem)]"
       >
         {/* Decorative shine */}
         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>

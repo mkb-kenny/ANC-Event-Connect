@@ -228,11 +228,12 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md mx-auto p-8 bg-white/60 backdrop-blur-2xl border border-white/50 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden"
+        className="w-full min-h-[calc(100vh-6rem)] p-8 bg-white/60 backdrop-blur-2xl border-b border-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden flex flex-col items-center justify-center"
       >
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
-        
-        <div className="text-center mb-8">
+        <div className="w-full max-w-md">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+          
+          <div className="text-center mb-8">
           <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-500/10 transform rotate-3">
             <Lock className="w-8 h-8 text-blue-600" />
           </div>
@@ -316,9 +317,10 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
             Setup Admin
           </button>
         </div>
-      </motion.div>
-    );
-  }
+      </div>
+    </motion.div>
+  );
+}
 
   if (activeTab === 'settings') {
     return (
@@ -393,7 +395,7 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="w-full max-w-7xl mx-auto p-4 md:p-8"
+      className="w-full min-h-[calc(100vh-6rem)] p-4 md:p-8 bg-white/60 backdrop-blur-2xl border-b border-white/50"
     >
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
         <div>
@@ -466,7 +468,7 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
         </div>
       </div>
 
-      <div className="bg-white/60 backdrop-blur-2xl border border-white/50 rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+      <div className="bg-white/60 backdrop-blur-2xl border border-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
         {/* Desktop Table View */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-slate-900">

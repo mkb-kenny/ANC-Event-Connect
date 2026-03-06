@@ -76,7 +76,7 @@ function App() {
       </header>
 
       <main className="w-full flex-1 relative z-10">
-        <div className="flex flex-col justify-center pt-24 pb-8 px-4 md:px-6 w-full items-center">
+        <div className="flex flex-col justify-center pt-24 pb-0 px-0 w-full items-center">
           <AnimatePresence mode="wait">
             {view === 'form' ? (
               !showWelcome && (
@@ -86,6 +86,7 @@ function App() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.5 }}
+                  className="w-full"
                 >
                   <EventForm />
                 </motion.div>

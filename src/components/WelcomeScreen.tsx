@@ -57,12 +57,12 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
       />
 
       {/* Content */}
-      <div className="relative z-10 text-center px-6 max-w-lg w-full">
+      <div className="relative z-10 text-center w-full h-full">
         <motion.div
-          initial={{ scale: 0.8, opacity: 0, y: 40 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          transition={{ duration: 1, type: "spring", bounce: 0.3 }}
-          className="bg-white/70 backdrop-blur-3xl border border-white/60 rounded-[2.5rem] p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.05)] relative overflow-hidden group"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          className="bg-white/70 backdrop-blur-3xl border-b border-white/60 p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.05)] relative overflow-hidden group w-full h-full flex flex-col items-center justify-center"
         >
           {/* Shine Effect */}
           <motion.div 

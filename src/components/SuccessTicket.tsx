@@ -27,7 +27,7 @@ export default function SuccessTicket({ data, onReset }: SuccessTicketProps) {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 relative">
+    <div className="w-full relative">
       <Confetti
         width={width}
         height={height}
@@ -37,10 +37,10 @@ export default function SuccessTicket({ data, onReset }: SuccessTicketProps) {
       />
       
       <motion.div
-        initial={{ scale: 0.8, opacity: 0, rotateX: -15 }}
-        animate={{ scale: 1, opacity: 1, rotateX: 0 }}
-        transition={{ type: "spring", stiffness: 100, damping: 20 }}
-        className="bg-white/60 backdrop-blur-2xl border border-white/50 rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white/60 backdrop-blur-2xl border-b border-white/50 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative min-h-[calc(100vh-6rem)]"
       >
         {/* Ticket Header */}
         <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 p-8 text-center relative overflow-hidden">
