@@ -25,26 +25,23 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
       className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-50 overflow-hidden"
     >
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
       <div className="absolute inset-0 bg-gradient-to-br from-blue-100/40 via-slate-50 to-purple-100/40"></div>
       
       {/* Animated Orbs */}
       <motion.div
         animate={{
           scale: [1, 1.5, 1],
-          opacity: [0.3, 0.6, 0.3],
         }}
         transition={{
           duration: 4,
           repeat: Infinity,
           ease: "easeInOut",
         }}
-        className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-300 rounded-full blur-[100px] opacity-30"
+        className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-300 rounded-full blur-[80px] opacity-30"
       />
       <motion.div
         animate={{
           scale: [1, 1.5, 1],
-          opacity: [0.3, 0.6, 0.3],
         }}
         transition={{
           duration: 5,
@@ -52,7 +49,7 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           ease: "easeInOut",
           delay: 1,
         }}
-        className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-300 rounded-full blur-[100px] opacity-30"
+        className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-300 rounded-full blur-[80px] opacity-30"
       />
 
       {/* Content */}
