@@ -2,7 +2,8 @@ import { motion } from 'motion/react';
 import { QRCodeSVG } from 'qrcode.react';
 import Confetti from 'react-confetti';
 import { useWindowSize } from 'react-use';
-import { Download, Share2, ArrowLeft } from 'lucide-react';
+import { Download, Share2, ArrowLeft, Loader2 } from 'lucide-react';
+import { useEventSettings } from '../services/settingsService';
 
 interface SuccessTicketProps {
   data: {
@@ -15,6 +16,15 @@ interface SuccessTicketProps {
 
 export default function SuccessTicket({ data, onReset }: SuccessTicketProps) {
   const { width, height } = useWindowSize();
+  const { settings, loading } = useEventSettings();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-md mx-auto p-6 relative">
@@ -39,7 +49,7 @@ export default function SuccessTicket({ data, onReset }: SuccessTicketProps) {
           
           <h2 className="text-3xl font-extrabold text-white relative z-10 tracking-tight mb-1">Thank You!</h2>
           <p className="text-blue-50 text-sm relative z-10 font-medium opacity-90">Registration Confirmed</p>
-          <p className="text-white/80 text-xs mt-2 relative z-10 font-medium uppercase tracking-widest">UWL Alumni Networking Evening</p>
+          <p className="text-white/80 text-xs mt-2 relative z-10 font-medium uppercase tracking-widest">{settings.title} {settings.subtitle}</p>
           
           {/* Decorative Circles */}
           <div className="absolute -top-10 -left-10 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
@@ -88,8 +98,8 @@ export default function SuccessTicket({ data, onReset }: SuccessTicketProps) {
             <button 
               onClick={async () => {
                 const shareData = {
-                  title: 'UWL Alumni Networking Evening',
-                  text: `I just registered for the UWL Alumni Networking Evening! Join me there.`,
+                  title: `${settings.title} ${settings.subtitle}`,
+                  text: `I just registered for the ${settings.title} ${settings.subtitle}! Join me there.`,
                   url: window.location.href
                 };
                 try {

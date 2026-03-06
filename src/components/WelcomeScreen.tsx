@@ -1,11 +1,22 @@
 import { motion } from 'motion/react';
-import { ChevronRight, Sparkles } from 'lucide-react';
+import { ChevronRight, Sparkles, Loader2 } from 'lucide-react';
+import { useEventSettings } from '../services/settingsService';
 
 interface WelcomeScreenProps {
   onStart: () => void;
 }
 
 export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
+  const { settings, loading } = useEventSettings();
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-50">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -57,7 +68,7 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/40 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ transform: 'skewX(-20deg) translateX(-150%)', animation: 'shine 3s infinite' }}></div>
           
           <div className="w-28 h-28 mx-auto bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/10 mb-8 p-4 transform transition-transform group-hover:scale-105 duration-500">
-            <img src="/anc-logo.png" alt="ANC Logo" className="w-full h-full object-contain" />
+            <img src="/anc-logo.png" alt="ANC Logo" referrerPolicy="no-referrer" className="w-full h-full object-contain" />
           </div>
           
           <motion.h1 
@@ -68,7 +79,7 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           >
             Welcome to <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 animate-gradient-x">
-              UWL Alumni
+              {settings.title}
             </span>
           </motion.h1>
           
@@ -78,7 +89,7 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
             transition={{ delay: 0.4 }}
             className="text-slate-500 text-lg font-medium mb-8"
           >
-            Networking Evening Registration
+            {settings.subtitle}
           </motion.p>
 
           <motion.button

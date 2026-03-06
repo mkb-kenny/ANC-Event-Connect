@@ -22,15 +22,9 @@
           "type": "string",
           "description": "The UWL ID number of the student."
         },
-        "interested": {
-          "type": "string",
-          "description": "Whether the student is interested in attending.",
-          "enum": ["Yes", "NO"]
-        },
         "informAdvance": {
-          "type": "string",
-          "description": "Agreement to inform in advance if unable to attend.",
-          "enum": ["Agree", "Disagree"]
+          "type": "boolean",
+          "description": "Agreement to inform in advance if unable to attend."
         },
         "createdAt": {
           "type": "string",
@@ -43,16 +37,32 @@
         "contactNumber",
         "program",
         "uwlIdNo",
-        "interested",
         "informAdvance",
         "createdAt"
       ]
+    },
+    "EventSettings": {
+      "title": "Event Settings",
+      "description": "Configuration for the event details.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "date": { "type": "string" },
+        "location": { "type": "string" },
+        "terms": { "type": "string" }
+      },
+      "required": ["title", "subtitle", "date", "location", "terms"]
     }
   },
   "firestore": {
     "registrations/{registrationId}": {
       "schema": "Registration",
       "description": "Collection of event registrations."
+    },
+    "settings/{settingId}": {
+      "schema": "EventSettings",
+      "description": "Global settings for the event."
     }
   }
 }

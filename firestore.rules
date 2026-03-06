@@ -3,24 +3,104 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: registrations
+    // Document ID: auto-generated
+    // Fields:
+    //   - studentName: string (required, 2-100 chars)
+    //   - contactNumber: string (required, 5-20 chars)
+    //   - program: string (required, enum: ['MBA', 'Top Up', 'MSc', 'LLM', 'L7'])
+    //   - uwlIdNo: string (required, 1-50 chars)
+    //   - informAdvance: boolean (required, must be true)
+    //   - createdAt: timestamp (required, server timestamp)
+    //
+    // Collection: settings
+    // Document ID: eventConfig
+    // Fields:
+    //   - title: string (required)
+    //   - subtitle: string (required)
+    //   - date: string (required)
+    //   - location: string (required)
+    //   - terms: string (required)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    // Check if the user is authenticated
     function isAuthenticated() {
       return request.auth != null;
     }
 
+    // Validate required fields exist
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    // Validate string length
+    function validStringLength(field, minLen, maxLen) {
+      return request.resource.data[field] is string &&
+        request.resource.data[field].size() >= minLen &&
+        request.resource.data[field].size() <= maxLen;
+    }
+
+    // Validate that the document contains only the allowed fields
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // Domain Validator for Registration
+    function isValidRegistration(data) {
+      return hasOnlyAllowedFields(['studentName', 'contactNumber', 'program', 'uwlIdNo', 'informAdvance', 'createdAt']) &&
+             hasRequiredFields(['studentName', 'contactNumber', 'program', 'uwlIdNo', 'informAdvance', 'createdAt']) &&
+             validStringLength('studentName', 2, 100) &&
+             validStringLength('contactNumber', 5, 20) &&
+             (data.program in ['MBA', 'Top Up', 'MSc', 'LLM', 'L7']) &&
+             validStringLength('uwlIdNo', 1, 50) &&
+             (data.informAdvance == true) &&
+             data.createdAt == request.time;
+    }
+
+    // Domain Validator for EventSettings
+    function isValidEventSettings(data) {
+      return hasOnlyAllowedFields(['title', 'subtitle', 'date', 'location', 'terms']) &&
+             hasRequiredFields(['title', 'subtitle', 'date', 'location', 'terms']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 100 &&
+             data.subtitle is string && data.subtitle.size() > 0 && data.subtitle.size() < 200 &&
+             data.date is string && data.date.size() > 0 && data.date.size() < 100 &&
+             data.location is string && data.location.size() > 0 && data.location.size() < 200 &&
+             data.terms is string && data.terms.size() > 0 && data.terms.size() < 500;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    // Check if the user is an admin
     function isAdmin() {
       return isAuthenticated() && (
-        request.auth.token.email == 'admin@ancedu.com' ||
-        request.auth.token.email == 'i.am.jerom.allan@gmail.com'
+        (request.auth.token.email == 'admin@ancedu.com') || 
+        (request.auth.token.email == 'i.am.jerom.allan@gmail.com')
       );
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidEventSettings(request.resource.data);
     }
 
     match /registrations/{registrationId} {
       // Allow anyone to create a registration (public form)
-      allow create: if true;
-
+      allow create: if isValidRegistration(request.resource.data);
+      
       // Only authenticated admins can read/list registrations
       allow read: if isAdmin();
-
+      
       // Admins can update and delete registrations
       allow update, delete: if isAdmin();
     }

@@ -2,7 +2,7 @@ import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 
-// Firebase configuration - hardcoded for reliability
+// Firebase configuration for uwl-alumni-event
 const firebaseConfig = {
   apiKey: "AIzaSyApuyPE8PbU30ppoR1TcIJcUbH6VcQUP80",
   authDomain: "uwl-alumni-event.firebaseapp.com",
@@ -27,6 +27,7 @@ try {
     app = getApps()[0];
   }
 
+  // Initialize Firestore (using default database)
   db = getFirestore(app);
   auth = getAuth(app);
 } catch (error) {

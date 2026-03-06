@@ -7,6 +7,7 @@ import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { db } from '../services/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import SuccessTicket from './SuccessTicket';
+import { useEventSettings } from '../services/settingsService';
 
 const formSchema = z.object({
   studentName: z.string().min(2, 'Student Name must be at least 2 characters'),
@@ -25,6 +26,7 @@ export default function EventForm() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [ticketData, setTicketData] = useState<FormData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { settings, loading } = useEventSettings();
 
   const {
     register,
@@ -44,44 +46,16 @@ export default function EventForm() {
     setIsSubmitting(true);
     setError(null);
     try {
-      const payload = {
-        studentName: data.studentName,
-        contactNumber: data.contactNumber,
-        program: data.program,
-        uwlIdNo: data.uwlIdNo,
-        interested: 'Yes',
-        informAdvance: data.informAdvance ? 'Agree' : 'Disagree',
+      await addDoc(collection(db, 'registrations'), {
+        ...data,
         createdAt: serverTimestamp(),
-      };
-
-      const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => {
-          const err = new Error('Request timed out. Please check your internet connection and that Firestore rules are published.');
-          (err as any).code = 'deadline-exceeded';
-          reject(err);
-        }, 15000)
-      );
-
-      await Promise.race([
-        addDoc(collection(db, 'registrations'), payload),
-        timeoutPromise,
-      ]);
-
+      });
       setTicketData(data);
       setIsSuccess(true);
       reset();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error submitting form:", err);
-      const code = err?.code || '';
-      if (code === 'permission-denied') {
-        setError("Submission blocked by Firestore rules. Please publish the updated rules in your Firebase Console and try again.");
-      } else if (code === 'deadline-exceeded' || code === 'unavailable' || code === 'network-request-failed') {
-        setError(err.message || "Network error: Could not connect to the database. Please check your internet connection.");
-      } else if (code === 'not-found') {
-        setError("Firestore database not found. Please enable Firestore in your Firebase Console for project 'uwl-alumni-event'.");
-      } else {
-        setError(`Registration failed: ${err.message || 'Please try again.'}`);
-      }
+      setError("Failed to submit registration. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -101,6 +75,14 @@ export default function EventForm() {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      </div>
+    );
+  }
 
   if (isSuccess && ticketData) {
     return <SuccessTicket data={ticketData} onReset={() => {
@@ -123,14 +105,14 @@ export default function EventForm() {
         <motion.div variants={itemVariants} className="mb-8 text-center">
           <h2 className="text-3xl font-extrabold text-slate-900 mb-3 tracking-tight">Registration</h2>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100/80 border border-slate-200 text-slate-600 text-xs font-semibold shadow-sm">
-            <span>📅 28th March 2026</span>
+            <span>📅 {settings.date}</span>
             <span className="w-1 h-1 bg-slate-400 rounded-full"></span>
-            <span>📍 ANC Kandy Branch</span>
+            <span>📍 {settings.location}</span>
           </div>
         </motion.div>
 
         {error && (
-          <motion.div
+          <motion.div 
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             className="mb-6 p-4 bg-red-50/80 backdrop-blur-sm border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 shadow-sm"
@@ -190,7 +172,7 @@ export default function EventForm() {
                 <option value="L7">L7</option>
               </select>
               <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
               </div>
             </div>
             {errors.program && (
@@ -231,7 +213,7 @@ export default function EventForm() {
                 </div>
               </div>
               <span className="text-sm font-medium text-slate-600 leading-relaxed group-hover:text-slate-900 transition-colors">
-                I agree to inform Ms. Nimesha (077 036 3802) or Ms. Kavya (077 551 0791) in advance if I am unable to participate.
+                {settings.terms}
               </span>
             </label>
             {errors.informAdvance && (
