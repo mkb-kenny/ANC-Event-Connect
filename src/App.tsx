@@ -21,7 +21,7 @@ function App() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'ANC UWL Event Registration',
+          title: 'Jerome Linsay Allan',
           text: 'Join us for the upcoming ANC Education UWL Event! Register now.',
           url: appUrl,
         });
@@ -105,11 +105,11 @@ function App() {
           <span className="hidden md:inline w-1 h-1 bg-slate-400 rounded-full opacity-50"></span>
           <a 
             href="https://spacenestsystems.netlify.app/" 
-            target="_blank" 
+            target="_blank"
             rel="noopener noreferrer"
             className="opacity-70 hover:opacity-100 hover:text-blue-600 transition-all flex items-center gap-1"
           >
-            Created by <span className="font-bold">Space Nest Systems</span>
+            Created by <span className="font-bold">Jerome Linsay Allan</span>
           </a>
         </div>
         
